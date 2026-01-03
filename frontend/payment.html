@@ -1,0 +1,62 @@
+<!-- payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Include head elements as shown above -->
+    <title>Payment - Campus Food Delivery</title>
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md text-center">
+        <h1 class="text-2xl font-semibold mb-4">Payment</h1>
+        <p class="mb-6">Total Amount: ₹<span id="total-amount">0</span></p>
+        <button id="pay-button" class="bg-green-500 text-white px-4 py-2 rounded">Pay Now</button>
+    </div>
+
+    <!-- Include JS files -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let totalAmount = 0;
+
+            cart.forEach(item => {
+                totalAmount += item.price * item.quantity;
+            });
+
+            document.getElementById('total-amount').textContent = totalAmount;
+
+            document.getElementById('pay-button').addEventListener('click', () => {
+                // Configure Razorpay options
+                const options = {
+                    key: "YOUR_RAZORPAY_KEY_ID", // Replace with your Razorpay key
+                    amount: totalAmount * 100, // Amount in paise
+                    currency: "INR",
+                    name: "Campus Food Delivery",
+                    description: "Order Payment",
+                    handler: function (response){
+                        // TODO: Verify payment on backend
+                        alert("Payment Successful!");
+                        // Redirect to order status page
+                        window.location.href = `order-status.html?payment_id=${response.razorpay_payment_id}`;
+                    },
+                    prefill: {
+                        name: "User Name", // Fetch from user profile
+                        contact: "User Phone", // Fetch from user profile
+                        email: "user@example.com" // Fetch from user profile
+                    },
+                    notes: {
+                        // Any additional notes
+                    },
+                    theme: {
+                        color: "#319795"
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
+            });
+        });
+    </script>
+</body>
+</html>

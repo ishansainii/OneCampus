@@ -1,0 +1,68 @@
+<!-- templates/stores.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stores - Campus Food Delivery</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+        <img src="../assets/images/logo.png" alt="Logo" class="h-10">
+        <button id="cart-button" class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13L17 13M7 13h10M7 13l-1.5 7" />
+            </svg>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">0</span>
+        </button>
+    </header>
+
+    <!-- Stores List -->
+    <main class="p-4 grid grid-cols-1 gap-4">
+        <div id="stores-container" class="grid grid-cols-2 gap-4">
+            <!-- Stores will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Include JS files -->
+    <script src="../assets/js/cart.js"></script>
+    <script>
+        // Fetch stores from backend API
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://127.0.0.1:5000/api/stores') // Replace with actual API endpoint
+                .then(response => response.json())
+                .then(data => {
+                    const storesContainer = document.getElementById('stores-container');
+                    data.stores.forEach(store => {
+                        const storeCard = document.createElement('div');
+                        storeCard.className = 'bg-white p-4 rounded shadow cursor-pointer';
+                        storeCard.innerHTML = `
+                            <img src="${store.image}" alt="${store.name}" class="h-24 w-full object-cover rounded">
+                            <h2 class="mt-2 text-lg font-semibold">${store.name}</h2>
+                            <p class="text-sm text-gray-600">Opening Hours: ${store.opening_hours}</p>
+                            <p class="text-sm ${store.is_open ? 'text-green-500' : 'text-gray-500'}">
+                                ${store.is_open ? 'Open' : 'Closed'}
+                            </p>
+                        `;
+                        storeCard.addEventListener('click', () => {
+                            // Redirect to store page with store ID
+                            window.location.href = `store.html?store_id=${store.id}`;
+                        });
+                        storesContainer.appendChild(storeCard);
+                    });
+                })
+                .catch(error => console.error('Error fetching stores:', error));
+        });
+
+        // Handle Cart Button Click
+        document.getElementById('cart-button').addEventListener('click', () => {
+            window.location.href = 'cart.html';
+        });
+    </script>
+</body>
+</html>

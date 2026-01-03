@@ -1,0 +1,99 @@
+<!-- templates/payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Campus Food Delivery</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md text-center">
+        <h1 class="text-2xl font-semibold mb-4">Payment</h1>
+        <p class="mb-6">Total Amount: ₹<span id="total-amount">0</span></p>
+
+        <!-- Delivery Location Dropdown -->
+        <div class="mt-4">
+            <label for="delivery-location" class="block text-sm font-medium text-gray-700">Select Delivery Location</label>
+            <select id="delivery-location" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+                <!-- Options fetched from backend -->
+            </select>
+        </div>
+
+        <button id="pay-button" class="mt-6 bg-green-500 text-white px-4 py-2 rounded">Pay Now</button>
+    </div>
+
+    <!-- Include JS files -->
+    <script src="../assets/js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let totalAmount = 0;
+
+            cart.forEach(item => {
+                totalAmount += item.price * item.quantity;
+            });
+
+            document.getElementById('total-amount').textContent = totalAmount;
+
+            // Fetch delivery locations from backend
+            fetch('http://127.0.0.1:5000/api/delivery-locations') // Replace with actual API endpoint
+                .then(response => response.json())
+                .then(data => {
+                    const locationSelect = document.getElementById('delivery-location');
+                    data.locations.forEach(location => {
+                        const option = document.createElement('option');
+                        option.value = location.id;
+                        option.textContent = location.name;
+                        locationSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching delivery locations:', error));
+
+            document.getElementById('pay-button').addEventListener('click', () => {
+                const selectedLocation = document.getElementById('delivery-location').value;
+                if (!selectedLocation) {
+                    alert('Please select a delivery location.');
+                    return;
+                }
+
+                // Configure Razorpay options
+                const options = {
+                    key: "YOUR_RAZORPAY_KEY_ID", // Replace with your Razorpay key
+                    amount: totalAmount * 100, // Amount in paise
+                    currency: "INR",
+                    name: "Campus Food Delivery",
+                    description: "Order Payment",
+                    handler: function (response){
+                        // TODO: Verify payment on backend
+                        alert("Payment Successful!");
+                        // Clear cart
+                        localStorage.removeItem('cart');
+                        // Redirect to order status page
+                        window.location.href = `order-status.html?payment_id=${response.razorpay_payment_id}`;
+                    },
+                    prefill: {
+                        name: "User Name", // Fetch from user profile
+                        contact: "User Phone", // Fetch from user profile
+                        email: "user@example.com" // Fetch from user profile
+                    },
+                    notes: {
+                        // Any additional notes
+                    },
+                    theme: {
+                        color: "#319795"
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Campus Food Delivery</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
+        <!-- Logo -->
+        <div class="mb-6 text-center">
+            <img src="../assets/images/logo.png" alt="Logo" class="mx-auto h-12">
+        </div>
+
+        <!-- Admin Login Form -->
+        <form id="admin-login-form" class="space-y-4">
+            <div>
+                <label for="admin-id" class="block text-sm font-medium text-gray-700">Admin ID</label>
+                <input type="text" id="admin-id" name="admin-id" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+            </div>
+            <div>
+                <label for="admin-password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="admin-password" name="admin-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+            </div>
+            <button type="submit" class="w-full bg-red-500 text-white py-2 rounded">Login as Admin</button>
+        </form>
+    </div>
+
+    <!-- Include JS files -->
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        // Handle Admin Login
+        document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const adminId = document.getElementById('admin-id').value;
+            const adminPassword = document.getElementById('admin-password').value;
+
+            // TODO: Validate fixed admin credentials
+            const fixedAdminId = 'admin123'; // Replace with actual fixed ID
+            const fixedAdminPassword = 'password123'; // Replace with actual fixed password
+
+            if (adminId === fixedAdminId && adminPassword === fixedAdminPassword) {
+                // Redirect to admin dashboard
+                alert('Admin login successful.');
+                // window.location.href = 'admin-dashboard.html';
+            } else {
+                alert('Invalid Admin ID or Password.');
+            }
+        });
+    </script>
+</body>
+</html>

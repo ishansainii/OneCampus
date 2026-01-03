@@ -1,0 +1,61 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Include head elements as shown above -->
+    <title>Login - Campus Food Delivery</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <!-- Logo -->
+        <div class="mb-6 text-center">
+            <img src="assets/images/logo.png" alt="Logo" class="mx-auto h-12">
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex mb-6">
+            <button id="login-tab" class="w-1/2 text-center py-2 border-b-2 border-blue-500 text-blue-500">Login</button>
+            <button id="signup-tab" class="w-1/2 text-center py-2 border-b-2 border-gray-300 text-gray-500">Signup</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="login-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input type="tel" id="login-phone" name="phone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+            </div>
+            <div>
+                <label for="login-pin" class="block text-sm font-medium text-gray-700">PIN</label>
+                <input type="password" id="login-pin" name="pin" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Login</button>
+        </form>
+
+        <!-- Signup Form (hidden by default) -->
+        <form id="signup-form" class="space-y-4 hidden">
+            <div>
+                <label for="signup-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input type="tel" id="signup-phone" name="phone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+            </div>
+            <div>
+                <label for="signup-email" class="block text-sm font-medium text-gray-700">Email ID</label>
+                <input type="email" id="signup-email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+            </div>
+            <div>
+                <label for="signup-otp" class="block text-sm font-medium text-gray-700">Email OTP</label>
+                <input type="text" id="signup-otp" name="otp" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded">
+                <button type="button" id="send-otp" class="mt-2 text-blue-500 text-sm">Send OTP</button>
+            </div>
+            <button type="submit" class="w-full bg-green-500 text-white py-2 rounded">Signup</button>
+        </form>
+
+        <!-- Admin Login Link -->
+        <div class="mt-6 text-center">
+            <a href="admin.html" class="text-sm text-gray-600">Login as Admin</a>
+        </div>
+    </div>
+
+    <!-- Include JS files -->
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>

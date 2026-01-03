@@ -1,0 +1,108 @@
+<!-- cart.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Include head elements as shown above -->
+    <title>Cart - Campus Food Delivery</title>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+        <button onclick="window.history.back()" class="text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <h1 class="text-lg font-semibold">Your Cart</h1>
+        <button id="cart-button" class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13L17 13M7 13h10M7 13l-1.5 7" />
+            </svg>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">0</span>
+        </button>
+    </header>
+
+    <!-- Cart Items -->
+    <main class="p-4 space-y-4" id="cart-items-container">
+        <!-- Cart items will be dynamically inserted here -->
+    </main>
+
+    <!-- Total and Payment Button -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-md flex justify-between items-center">
+        <div>
+            <p>Total: ₹<span id="total-amount">0</span></p>
+        </div>
+        <button id="proceed-payment" class="bg-green-500 text-white px-4 py-2 rounded">Proceed to Payment</button>
+    </div>
+
+    <!-- Include JS files -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const totalAmountEl = document.getElementById('total-amount');
+
+            let totalAmount = 0;
+
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bg-white p-4 rounded shadow flex items-center';
+                itemDiv.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="h-16 w-16 object-cover rounded">
+                    <div class="ml-4 flex-1">
+                        <h2 class="text-lg font-semibold">${item.name}</h2>
+                        <p class="text-sm text-gray-600">Price: ₹${item.price}</p>
+                        <div class="mt-2 flex items-center">
+                            <button class="minus-btn px-2 py-1 bg-gray-200 rounded">-</button>
+                            <span class="mx-2 quantity">${item.quantity}</span>
+                            <button class="plus-btn px-2 py-1 bg-gray-200 rounded">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold">₹${item.price * item.quantity}</p>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(itemDiv);
+
+                totalAmount += item.price * item.quantity;
+
+                // Handle Quantity Adjustments
+                const minusBtn = itemDiv.querySelector('.minus-btn');
+                const plusBtn = itemDiv.querySelector('.plus-btn');
+                const quantitySpan = itemDiv.querySelector('.quantity');
+
+                minusBtn.addEventListener('click', () => {
+                    if (item.quantity > 1) {
+                        item.quantity--;
+                        quantitySpan.textContent = item.quantity;
+                        updateCart();
+                    }
+                });
+
+                plusBtn.addEventListener('click', () => {
+                    item.quantity++;
+                    quantitySpan.textContent = item.quantity;
+                    updateCart();
+                });
+            });
+
+            totalAmountEl.textContent = totalAmount;
+
+            function updateCart() {
+                localStorage.setItem('cart', JSON.stringify(cart));
+                // Reload the page to update total
+                window.location.reload();
+            }
+
+            // Update Cart Count
+            const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').textContent = cartCount;
+
+            // Handle Proceed to Payment
+            document.getElementById('proceed-payment').addEventListener('click', () => {
+                window.location.href = 'payment.html';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!-- templates/store.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store - Campus Food Delivery</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+        <button onclick="window.history.back()" class="text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <h1 id="store-name" class="text-lg font-semibold"></h1>
+        <button id="cart-button" class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13L17 13M7 13h10M7 13l-1.5 7" />
+            </svg>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">0</span>
+        </button>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="p-4">
+        <input type="text" id="search-bar" placeholder="Search items..." class="w-full px-3 py-2 border border-gray-300 rounded">
+    </div>
+
+    <!-- Categories -->
+    <div id="categories-container" class="p-4 flex space-x-4 overflow-x-auto">
+        <!-- Categories will be dynamically inserted here -->
+    </div>
+
+    <!-- Items List -->
+    <main class="p-4 grid grid-cols-1 gap-4" id="items-container">
+        <!-- Items will be dynamically inserted here -->
+    </main>
+
+    <!-- Include JS files -->
+    <script src="../assets/js/cart.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeId = urlParams.get('store_id');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch store details
+            fetch(`http://127.0.0.1:5000/api/stores/${storeId}`) // Replace with actual API endpoint
+                .then(response => response.json())
+                .then(store => {
+                    document.getElementById('store-name').textContent = store.name;
+                })
+                .catch(error => console.error('Error fetching store details:', error));
+
+            // Fetch items from store
+            fetch(`http://127.0.0.1:5000/api/stores/${storeId}/items`) // Replace with actual API endpoint
+                .then(response => response.json())
+                .then(data => {
+                    const categoriesContainer = document.getElementById('categories-container');
+                    const itemsContainer = document.getElementById('items-container');
+
+                    // Populate categories
+                    data.categories.forEach(category => {
+                        const categoryButton = document.createElement('button');
+                        categoryButton.className = 'px-4 py-2 bg-blue-500 text-white rounded';
+                        categoryButton.textContent = category.name;
+                        categoryButton.addEventListener('click', () => {
+                            displayItems(category.id);
+                        });
+                        categoriesContainer.appendChild(categoryButton);
+                    });
+
+                    // Display all items initially
+                    displayItems();
+
+                    // Handle Search
+                    document.getElementById('search-bar').addEventListener('input', (e) => {
+                        const query = e.target.value.toLowerCase();
+                        const filteredItems = data.items.filter(item => item.name.toLowerCase().includes(query));
+                        displayItems(null, filteredItems);
+                    });
+
+                    function displayItems(categoryId = null, items = null) {
+                        itemsContainer.innerHTML = '';
+                        const itemsToDisplay = items || (categoryId ? data.items.filter(item => item.category_id === categoryId) : data.items);
+                        itemsToDisplay.forEach(item => {
+                            const itemCard = document.createElement('div');
+                            itemCard.className = 'bg-white p-4 rounded shadow flex';
+                            itemCard.innerHTML = `
+                                <img src="${item.image}" alt="${item.name}" class="h-24 w-24 object-cover rounded">
+                                <div class="ml-4 flex-1">
+                                    <h2 class="text-lg font-semibold">${item.name}</h2>
+                                    <p class="text-sm text-gray-600">${item.description}</p>
+                                    <p class="mt-2 text-sm">Price: ₹${item.price}</p>
+                                    <p class="text-sm ${item.is_available ? 'text-green-500' : 'text-gray-500'}">
+                                        ${item.is_available ? 'Available' : 'Not Available'}
+                                    </p>
+                                    <div class="mt-2 flex items-center">
+                                        <button class="minus-btn px-2 py-1 bg-gray-200 rounded">-</button>
+                                        <span class="mx-2 quantity">0</span>
+                                        <button class="plus-btn px-2 py-1 bg-gray-200 rounded">+</button>
+                                        <button class="ml-auto add-to-cart-btn px-3 py-1 bg-blue-500 text-white rounded ${!item.is_available ? 'opacity-50 cursor-not-allowed' : ''}" ${!item.is_available ? 'disabled' : ''}>
+                                            Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                            itemsContainer.appendChild(itemCard);
+
+                            // Handle Quantity and Add to Cart
+                            const minusBtn = itemCard.querySelector('.minus-btn');
+                            const plusBtn = itemCard.querySelector('.plus-btn');
+                            const quantitySpan = itemCard.querySelector('.quantity');
+                            const addToCartBtn = itemCard.querySelector('.add-to-cart-btn');
+
+                            let quantity = 0;
+
+                            minusBtn.addEventListener('click', () => {
+                                if (quantity > 0) {
+                                    quantity--;
+                                    quantitySpan.textContent = quantity;
+                                    updateCartButton();
+                                }
+                            });
+
+                            plusBtn.addEventListener('click', () => {
+                                if (quantity < item.available_quantity) {
+                                    quantity++;
+                                    quantitySpan.textContent = quantity;
+                                    updateCartButton();
+                                }
+                            });
+
+                            addToCartBtn.addEventListener('click', () => {
+                                if (quantity > 0) {
+                                    addToCart(item, quantity);
+                                    quantity = 0;
+                                    quantitySpan.textContent = quantity;
+                                    addToCartBtn.textContent = 'Added';
+                                    addToCartBtn.disabled = true;
+                                    addToCartBtn.classList.remove('bg-blue-500');
+                                    addToCartBtn.classList.add('bg-green-500');
+                                }
+                            });
+
+                            function updateCartButton() {
+                                if (quantity > 0) {
+                                    addToCartBtn.textContent = 'Add to Cart';
+                                    addToCartBtn.disabled = false;
+                                    addToCartBtn.classList.remove('bg-green-500');
+                                    addToCartBtn.classList.add('bg-blue-500');
+                                } else {
+                                    addToCartBtn.textContent = 'Add to Cart';
+                                    addToCartBtn.disabled = false;
+                                    addToCartBtn.classList.remove('bg-green-500');
+                                    addToCartBtn.classList.add('bg-blue-500');
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching items:', error));
+        });
+
+        // Handle Cart Button Click
+        document.getElementById('cart-button').addEventListener('click', () => {
+            window.location.href = 'cart.html';
+        });
+    </script>
+</body>
+</html>

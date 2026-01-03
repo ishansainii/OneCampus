@@ -1,0 +1,101 @@
+<!-- templates/order-status.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - Campus Food Delivery</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-lg">
+        <h1 class="text-2xl font-semibold mb-4">Order Status</h1>
+        <div id="status-container" class="space-y-4">
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center">1</div>
+                <p class="ml-2">Order Awaiting Acceptance</p>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center">2</div>
+                <p class="ml-2">Order Accepted by Restaurant</p>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center">3</div>
+                <p class="ml-2">Order Packed and Out for Delivery</p>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center">4</div>
+                <p class="ml-2">Order Delivered</p>
+            </div>
+        </div>
+
+        <div id="timer" class="mt-6 text-center text-lg">
+            Time Remaining: <span id="time-remaining">30:00</span>
+        </div>
+
+        <div id="delivery-proof" class="mt-6 hidden text-center">
+            <img src="../assets/images/delivery-proof.jpg" alt="Delivery Proof" class="mx-auto h-32 w-32 object-cover rounded">
+            <p class="mt-2">Order Delivered Successfully!</p>
+        </div>
+    </div>
+
+    <!-- Include JS files -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusContainer = document.getElementById('status-container');
+            const timerEl = document.getElementById('time-remaining');
+            const deliveryProof = document.getElementById('delivery-proof');
+
+            let currentStage = 0;
+            const stages = [
+                "Order Awaiting Acceptance",
+                "Order Accepted by Restaurant",
+                "Order Packed and Out for Delivery",
+                "Order Delivered"
+            ];
+
+            // Function to update status
+            function updateStatus(stage) {
+                const statusItems = statusContainer.children;
+                for (let i = 0; i < statusItems.length; i++) {
+                    if (i <= stage) {
+                        statusItems[i].querySelector('div').classList.remove('bg-gray-300');
+                        statusItems[i].querySelector('div').classList.add('bg-blue-500');
+                    } else {
+                        statusItems[i].querySelector('div').classList.remove('bg-blue-500');
+                        statusItems[i].querySelector('div').classList.add('bg-gray-300');
+                    }
+                }
+            }
+
+            // Simulate order progress
+            const interval = setInterval(() => {
+                if (currentStage < stages.length - 1) {
+                    currentStage++;
+                    updateStatus(currentStage);
+                } else {
+                    clearInterval(interval);
+                    deliveryProof.classList.remove('hidden');
+                }
+            }, 10000); // Change stage every 10 seconds for demonstration
+
+            // Timer countdown
+            let timeRemaining = 30 * 60; // 30 minutes in seconds
+            const timerInterval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = "00:00";
+                } else {
+                    const minutes = Math.floor(timeRemaining / 60);
+                    const seconds = timeRemaining % 60;
+                    timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    timeRemaining--;
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!-- templates/profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Campus Food Delivery</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+        <button onclick="window.history.back()" class="text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <h1 class="text-lg font-semibold">Profile</h1>
+        <div></div>
+    </header>
+
+    <!-- Profile Details -->
+    <main class="p-4 space-y-4">
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-md font-semibold">Name</h2>
+            <p id="user-name">Loading...</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-md font-semibold">Email</h2>
+            <p id="user-email">Loading...</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-md font-semibold">Phone Number</h2>
+            <input type="tel" id="user-phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded" value="Loading...">
+            <button id="update-phone" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Update Phone Number</button>
+        </div>
+    </main>
+
+    <!-- Include JS files -->
+    <script src="../assets/js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch user details from backend
+            fetch('http://127.0.0.1:5000/api/user/profile') // Replace with actual API endpoint
+                .then(response => response.json())
+                .then(user => {
+                    document.getElementById('user-name').textContent = user.name;
+                    document.getElementById('user-email').textContent = user.email;
+                    document.getElementById('user-phone').value = user.phone;
+                })
+                .catch(error => console.error('Error fetching user profile:', error));
+
+            // Handle Phone Number Update
+            document.getElementById('update-phone').addEventListener('click', () => {
+                const newPhone = document.getElementById('user-phone').value;
+                if (!newPhone) {
+                    alert('Please enter a valid phone number.');
+                    return;
+                }
+
+                // TODO: Connect to backend API to update phone number
+                fetch('http://127.0.0.1:5000/api/user/update-phone', { // Replace with actual API endpoint
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone: newPhone })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Phone number updated successfully.');
+                    } else {
+                        alert('Failed to update phone number.');
+                    }
+                })
+                .catch(error => console.error('Error updating phone number:', error));
+            });
+        });
+    </script>
+</body>
+</html>
